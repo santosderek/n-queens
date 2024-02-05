@@ -122,25 +122,12 @@ fn is_valid_position(grid: &Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> 
     true
 }
 
-fn return_number_of_queens(grid: &Vec<Vec<Option<Queen>>>) -> usize {
-    let mut count = 0;
-
-    for row in 0..grid.len() {
-        for col in 0..grid.len() {
-            match grid[row][col] {
-                Some(Queen) => {
-                    count = count + 1;
-                    continue;
-                }
-                None => {}
-            }
-        }
-    }
-
-    count
-}
-
-fn solve_grid(grid: &mut Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> Vec<Board> {
+fn solve_grid(
+    grid: &mut Vec<Vec<Option<Queen>>>,
+    row: usize,
+    col: usize,
+    number_of_queens: usize,
+) -> Vec<Board> {
     if grid.len() == 0 || grid.len() == 0 {
         return vec![];
     }
@@ -151,28 +138,30 @@ fn solve_grid(grid: &mut Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> Vec
 
     let mut possible_boards: Vec<Board> = vec![];
 
+    let mut count_of_queens = number_of_queens;
+
     if is_valid_position(grid, row, col) {
         grid[row][col] = Some(Queen);
-        if return_number_of_queens(grid) == grid.len() {
+        count_of_queens += 1;
+        if count_of_queens == grid.len() {
             possible_boards.push(Board {
                 grid: grid.to_vec(),
             });
         } else if (row + 1) < grid.len() {
-            possible_boards.extend(solve_grid(grid, row + 1, 0));
+            possible_boards.extend(solve_grid(grid, row + 1, 0, count_of_queens));
         }
+        // we assume its going down after this line
+        count_of_queens -= 1;
     }
 
     grid[row][col] = None;
     if (col + 1) < grid.len() {
-        possible_boards.extend(solve_grid(grid, row, col + 1));
+        possible_boards.extend(solve_grid(grid, row, col + 1, count_of_queens));
     } else if (row + 1) < grid.len() {
-        possible_boards.extend(solve_grid(grid, row + 1, 0));
+        possible_boards.extend(solve_grid(grid, row + 1, 0, count_of_queens));
     }
 
-    if row == (grid.len() - 1)
-        && col == (grid.len() - 1)
-        && return_number_of_queens(grid) == grid.len()
-    {
+    if row == (grid.len() - 1) && col == (grid.len() - 1) && count_of_queens == grid.len() {
         possible_boards.push(Board {
             grid: grid.to_vec(),
         });
@@ -190,7 +179,7 @@ impl Solution {
         let mut board = Board::new(n as usize);
         let mut final_boards: Vec<Board> = vec![];
 
-        final_boards.extend(solve_grid(&mut board.grid, 0, 0));
+        final_boards.extend(solve_grid(&mut board.grid, 0, 0, 0));
 
         let mut final_vec: Vec<Vec<String>> = vec![];
 
