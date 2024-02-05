@@ -1,1 +1,1 @@
-![image](https://github.com/santosderek/n-queens/assets/7491107/fef8e656-7e93-4e95-8084-073ba2a2cbb9)
+![image](https://github.com/santosderek/n-queens/assets/7491107/68fa7a5b-75c2-4814-8f4e-7819e1feda41)
