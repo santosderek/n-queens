@@ -7,16 +7,7 @@ struct Board {
 
 impl Board {
     fn new(size: usize) -> Board {
-        let mut grid: Vec<Vec<Option<Queen>>> = vec![];
-
-        for _ in 0..size {
-            let mut col_vec = vec![];
-            for _ in 0..size {
-                col_vec.push(None);
-            }
-            grid.push(col_vec);
-        }
-
+        let grid: Vec<Vec<Option<Queen>>> = vec![vec![None; size]; size];
         Board { grid }
     }
 
@@ -30,7 +21,7 @@ impl Board {
         for row in 0..self.grid.len() {
             let mut row_string: String = String::new();
 
-            for col in 0..self.grid[0].len() {
+            for col in 0..self.grid.len() {
                 match self.grid[row][col] {
                     Some(Queen) => row_string.push('Q'),
                     None => row_string.push('.'),
@@ -45,7 +36,7 @@ impl Board {
 
 fn within_grid(grid: &Vec<Vec<Option<Queen>>>, row: i8, col: i8) -> bool {
     let within_left_to_right = 0 <= row && row < grid.len() as i8;
-    let within_right_to_left = 0 <= col && col < grid[0].len() as i8;
+    let within_right_to_left = 0 <= col && col < grid.len() as i8;
     return within_left_to_right && within_right_to_left;
 }
 
@@ -85,7 +76,7 @@ fn is_valid_position(grid: &Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> 
     }
 
     // Check if there is a queen right of the current Queen
-    for position in col..grid[0].len() {
+    for position in col..grid.len() {
         match grid[row][position] {
             Some(Queen) => return false,
             None => {}
@@ -135,9 +126,12 @@ fn return_number_of_queens(grid: &Vec<Vec<Option<Queen>>>) -> usize {
     let mut count = 0;
 
     for row in 0..grid.len() {
-        for col in 0..grid[0].len() {
+        for col in 0..grid.len() {
             match grid[row][col] {
-                Some(Queen) => count = count + 1,
+                Some(Queen) => {
+                    count = count + 1;
+                    continue;
+                }
                 None => {}
             }
         }
@@ -146,21 +140,8 @@ fn return_number_of_queens(grid: &Vec<Vec<Option<Queen>>>) -> usize {
     count
 }
 
-fn print_grid(grid: &Vec<Vec<Option<Queen>>>) {
-    for row in 0..grid.len() {
-        for col in 0..grid[0].len() {
-            match grid[row][col] {
-                Some(Queen) => print!("Q "),
-                None => print!(". "),
-            }
-        }
-        println!();
-    }
-    println!();
-}
-
 fn solve_grid(grid: &mut Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> Vec<Board> {
-    if grid.len() == 0 || grid[0].len() == 0 {
+    if grid.len() == 0 || grid.len() == 0 {
         return vec![];
     }
 
@@ -176,22 +157,16 @@ fn solve_grid(grid: &mut Vec<Vec<Option<Queen>>>, row: usize, col: usize) -> Vec
             possible_boards.push(Board {
                 grid: grid.to_vec(),
             });
-        } else if within_grid(grid, row as i8, (col + 1) as i8) {
-            possible_boards.extend(solve_grid(grid, row, col + 1));
-        } else if within_grid(grid, (row + 1) as i8, 0) {
+        } else if (row + 1) < grid.len() {
             possible_boards.extend(solve_grid(grid, row + 1, 0));
         }
     }
 
     grid[row][col] = None;
-    if within_grid(grid, row as i8, (col + 1) as i8) {
+    if (col + 1) < grid.len() {
         possible_boards.extend(solve_grid(grid, row, col + 1));
-    } else if within_grid(grid, (row + 1) as i8, 0) {
+    } else if (row + 1) < grid.len() {
         possible_boards.extend(solve_grid(grid, row + 1, 0));
-    }
-
-    if return_number_of_queens(grid) >= grid.len() {
-        print_grid(grid);
     }
 
     if row == (grid.len() - 1)
